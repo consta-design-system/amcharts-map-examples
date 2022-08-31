@@ -7,6 +7,10 @@ const groups = [
     title: 'Компоненты',
     id: 'components',
   },
+  {
+    title: 'Адаптеры',
+    id: 'adapters',
+  },
 ] as const;
 
 export const { createStand } = createConfig({
