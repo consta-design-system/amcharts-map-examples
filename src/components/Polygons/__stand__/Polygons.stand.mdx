@@ -1,0 +1,358 @@
+import { MdxMenu } from '@consta/stand';
+import { PolygonsExample } from './examples/PolygonsExample/PolygonsExample';
+
+Серии полигонов карты отвечают за отрисовку реальных областей карты (страны, регионы и т. д.).
+
+<MdxMenu>
+
+- [Добавление серии полигонов](#добавление-серии-полигонов)
+  - [Данные](#данные)
+    - [GeoJSON](#geojson)
+    - [Обычные данные](#обычные-данные)
+- [Стилизация](#стилизация)
+  - [Состояния](#состояния)
+- [Пример](#пример)
+
+</MdxMenu>
+
+## Добавление серии полигонов
+
+Чтобы создать серию полигонов карты, нам нужно созадать ообъект `MapPolygonSeries` и добавить его в эементы полотна:
+
+```tsx
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: am5geodata_worldLow,
+  }),
+);
+```
+
+### Данные
+
+Как и в случае с любми полигонами, для работы с полигональной серией нужны определенные данные.
+
+В случае серии карт это может быть либо формат `GeoJSON`, либо формат простых данных.
+
+#### GeoJSON
+
+Данные в формате `GeoJSON` задаются через свойство `geodata`.
+Серию полигонов можно взять из пакета `@amcharts/amcharts5-geodata`, либо взять из других источников или написать ее самому
+
+```tsx
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: am5geodata_russiaLow,
+  }),
+);
+```
+
+#### Обычные данные
+
+Также можно передавать общие данные в серию через ее свойство `data` и метода `push`.
+
+Элементы серии полигонов карты должны быть в геометрическом формате GeoJSON, например:
+
+```tsx
+const polygonSeries = chart.series.push(am5map.MapPolygonSeries.new(root, {}));
+polygonSeries.data.push({
+  geometry: {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [136.066786, 67.155569],
+        [136.066786, 66.155569],
+        [134.066786, 66.155569],
+        [134.066786, 64.155569],
+        [132.066786, 64.155569],
+        [132.066786, 65.155569],
+        [130.066786, 65.155569],
+        [130.066786, 66.155569],
+        [128.066786, 66.155569],
+        [128.066786, 67.155569],
+        [130.066786, 67.155569],
+        [130.066786, 68.155569],
+        [132.066786, 68.155569],
+        [132.066786, 67.155569],
+        [136.066786, 67.155569],
+      ],
+    ],
+  },
+});
+```
+
+Также в `@amcharts/amcharts5` есть предустановленные инструменты для удобства отрисовки полигонов:
+
+- `am5map.getGeoCircle(geoPoint, radius)` - возвращает географические данные, представляющие окружность с центром на определенной широте/долготе (первый параметр) и радиусом (в градусах).
+- `am5map.getGeoRectangle(north, east, south, west)` - возвращает географические данные, представляющие квадрат с границами, переданными через четыре параметра.
+
+```tsx
+const polygonSeries = chart.series.push(am5map.MapPolygonSeries.new(root, {}));
+polygonSeries.data.push({
+  geometry: am5map.getGeoCircle(
+    { latitude: 67.155569, longitude: 136.066786 },
+    2,
+  ),
+});
+```
+
+> Также есть воозможность совместного использования формата `GeoJSON` и обычных данных
+
+```tsx
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: am5geodata_russiaHigh,
+  }),
+);
+
+polygonSeries.data.setAll([
+  {
+    id: 'BR',
+    name: 'Belarus',
+    value: 100,
+  },
+  {
+    id: 'KZ',
+    name: 'Kazahstan',
+    value: 200,
+  },
+]);
+```
+
+## Стилизация
+
+Внешний вид полигона можно настроить через его шаблон, доступный через `mapPolygons.template`.
+
+```tsx
+polygonSeries.mapPolygons.template.setAll({
+  stroke: am5.color(0xffffff),
+  strokeWidth: 2,
+  fillOpacity: 0.5,
+});
+```
+
+Для того чтобы вынести слой наверх необходимо указать свойство `layer`:
+
+```tsx
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: data,
+    layer: 2,
+  }),
+);
+```
+
+### Состояния
+
+Для того чтобы при наведении отображать всплывающую подсказку неопходимо в шаблоне определить формат вывода для свойства `tooltipText`:
+
+```tsx
+polygonSeries.mapPolygons.template.setAll({
+  tooltipText: '{name}',
+});
+```
+
+Для изменения стилей полигона небходимо создать стили для сосотояний `'hover', 'active', 'hidden', 'disabled'`:
+
+```tsx
+polygonSeries.mapPolygons.template.states.create('hover', {
+  stroke: am5.color('#66ADE1'),
+});
+
+polygonSeries.mapPolygons.template.states.create('active', {
+  fill: am5.color('#0071B2'),
+  fillOpacity: 0.3,
+  stroke: am5.color(vars.color.primary['--color-bg-default']),
+});
+
+polygonSeries.mapPolygons.template.states.create('disable', {
+  fill: am5.color('#004269'),
+  fillOpacity: 0.7,
+});
+```
+
+Чтобы при наведении вынести слой на верхний уровень нужно указать поведение для сообытий `pointerover` и `pointerout` (это необходимо если при наведении у вас меняются цвета границ полигонов):
+
+```tsx
+let previousPolygon: am5map.MapPolygon | undefined;
+
+polygonSeries.mapPolygons.template.events.on('pointerover', function (event) {
+  event.target.toFront();
+});
+polygonSeries.mapPolygons.template.events.on('pointerout', function (event) {
+  if (event.target !== previousPolygon) {
+    event.target.toBack();
+  }
+});
+```
+
+## Пример
+
+<PolygonsExample />
+
+```tsx
+import * as am5 from '@amcharts/amcharts5';
+import * as am5map from '@amcharts/amcharts5/map';
+import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
+import am5geodata_russiaHigh from '@amcharts/amcharts5-geodata/russiaHigh';
+import { useThemeVars } from '@consta/uikit/useThemeVars';
+import React, { useLayoutEffect } from 'react';
+
+const POLYGONS: GeoJSON.FeatureCollection = {
+  type: 'FeatureCollection',
+  features: [
+    {
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [136.066786, 67.155569],
+            [136.066786, 66.155569],
+            [134.066786, 66.155569],
+            [134.066786, 64.155569],
+            [132.066786, 64.155569],
+            [132.066786, 65.155569],
+            [130.066786, 65.155569],
+            [130.066786, 66.155569],
+            [128.066786, 66.155569],
+            [128.066786, 67.155569],
+            [130.066786, 67.155569],
+            [130.066786, 68.155569],
+            [132.066786, 68.155569],
+            [132.066786, 67.155569],
+            [136.066786, 67.155569],
+          ],
+        ],
+      },
+      properties: {
+        name: 'Вынгаяхинский лицензионный участок',
+        id: 'polygon1',
+      },
+      id: 'polygon1',
+    },
+  ],
+};
+
+export const PolygonsExample = () => {
+  const vars = useThemeVars();
+
+  useLayoutEffect(() => {
+    const root = am5.Root.new('PolygonsExample');
+
+    root.setThemes([am5themes_Animated.new(root)]);
+
+    const chart = root.container.children.push(
+      am5map.MapChart.new(root, {
+        panX: 'rotateX',
+        panY: 'rotateY',
+        rotationX: -55,
+        projection: am5map.geoMercator(),
+        layout: root.horizontalLayout,
+      }),
+    );
+
+    const polygonSeries = chart.series.push(
+      am5map.MapPolygonSeries.new(root, {
+        geoJSON: am5geodata_russiaHigh,
+        valueField: 'value',
+      }),
+    );
+
+    chart.set('zoomControl', am5map.ZoomControl.new(root, {}));
+
+    polygonSeries.mapPolygons.template.states.create('hover', {
+      stroke: am5.color('#66ADE1'),
+    });
+
+    polygonSeries.mapPolygons.template.states.create('active', {
+      fill: am5.color('#0071B2'),
+      fillOpacity: 0.3,
+      stroke: am5.color(vars.color.primary['--color-bg-default']),
+    });
+
+    polygonSeries.mapPolygons.template.states.create('disable', {
+      fill: am5.color('#004269'),
+      fillOpacity: 0.7,
+    });
+
+    let previousPolygon: am5map.MapPolygon | undefined;
+
+    polygonSeries.mapPolygons.template.events.on(
+      'pointerover',
+      function (event) {
+        event.target.toFront();
+      },
+    );
+    polygonSeries.mapPolygons.template.events.on(
+      'pointerout',
+      function (event) {
+        if (event.target !== previousPolygon) {
+          event.target.toBack();
+        }
+      },
+    );
+
+    polygonSeries.mapPolygons.template.on('active', function (active, target) {
+      if (previousPolygon && previousPolygon !== target) {
+        previousPolygon.set('active', false);
+      }
+      if (target?.get('active')) {
+        target?.toFront();
+        target?.dataItem &&
+          polygonSeries.zoomToDataItem(
+            target.dataItem as am5.DataItem<am5map.IMapPolygonSeriesDataItem>,
+          );
+      }
+
+      previousPolygon = target;
+    });
+
+    polygonSeries.mapPolygons.template.setAll({
+      tooltipText: '{name}',
+      toggleKey: 'active',
+      interactive: true,
+      fill: am5.color('#0071B2'),
+      fillOpacity: 0.16,
+      strokeWidth: 2,
+      templateField: 'settings',
+      stroke: am5.color(vars.color.primary['--color-bg-default']),
+    });
+
+    const newPolygonSeries = chart.series.push(
+      am5map.MapPolygonSeries.new(root, {
+        geoJSON: POLYGONS,
+        layer: -1,
+        valueField: 'value',
+      }),
+    );
+
+    newPolygonSeries.mapPolygons.template.setAll({
+      tooltipText: '{name}',
+      toggleKey: 'active',
+      interactive: true,
+      fillOpacity: 0.2,
+      strokeWidth: 1,
+      templateField: 'settings',
+    });
+    newPolygonSeries.data.setAll([
+      {
+        id: 'polygon1',
+        settings: {
+          fill: am5.color('#F38B00'),
+          stroke: am5.color('#F38B00'),
+        },
+      },
+    ]);
+
+    chart.appear(1000, 100);
+
+    return () => {
+      chart.dispose();
+      root.dispose();
+      polygonSeries.dispose();
+    };
+  }, [vars]);
+
+  return <div id="PolygonsExample" />;
+};
+```
