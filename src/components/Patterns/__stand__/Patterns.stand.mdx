@@ -1,6 +1,8 @@
 import { MdxMenu } from '@consta/stand';
 import { PatternsExample } from './examples/PatternsExample/PatternsExample';
 
+Вы можете добавить к элементу какой-то паттерн: заполнить его линиями, куржочками или любым изображением.
+
 <MdxMenu>
 
 - [Паттерны](#паттерны)
@@ -10,17 +12,17 @@ import { PatternsExample } from './examples/PatternsExample/PatternsExample';
 
 ## Паттерны
 
-Чтобы применить паттерн к элементу, нам нужно сделать две вещи:
+Чтобы применить паттерн к элементу, нужно сделать две вещи:
 
-- Создайть объект шаблона.
-- Назначьте его элементам `fillPattern` и/или `strokePattern`.
+- создать объект шаблона,
+- назначить его элементам `fillPattern` и/или `strokePattern`.
 
 Есть несколько видов паттернов:
 
-- `LinePattern` - линейный узор
-- `RectanglePattern` - квадратный узор
-- `CirclePattern` - крговой узор
-- `PicturePattern` - узор картинкой
+- `LinePattern` — линии,
+- `RectanglePattern` — прямоугольники,
+- `CirclePattern` — кружочки,
+- `PicturePattern` — изображение.
 
 ```tsx
 am5.LinePattern.new(root, {
