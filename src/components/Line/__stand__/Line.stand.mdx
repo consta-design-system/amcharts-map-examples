@@ -1,7 +1,7 @@
 import { MdxMenu } from '@consta/stand';
 import { LineExample } from './examples/LineExample/LineExample';
 
-Серии линий карты используются для нанесения проецируемых линий на карту.
+Серии линий `MapLineSeries` используются для нанесения проекций линий на карту.
 
 <MdxMenu>
 
@@ -16,7 +16,7 @@ import { LineExample } from './examples/LineExample/LineExample';
 
 ## Добавление серии линий
 
-Чтобы создать серию полигонов карты, нам нужно созадать ообъект `MapLineSeries` и добавить его в эементы полотна:
+Чтобы создать серию линий, создайте объект `MapLineSeries` и добавьте его в элементы полотна:
 
 ```tsx
 const polygonSeries = chart.series.push(
@@ -30,7 +30,7 @@ const polygonSeries = chart.series.push(
 
 Данные для отрисовки маркера принимаются в формате `GeoJSON`, а также в виде обычных данных.
 
-> Каждый набр координат отвечает за коонкретную точку до которой будет рисоваться линия
+> Каждый набор координат отвечает за конкретную точку, до которой будет продолжаться линия
 
 ### GeoJSON
 
@@ -64,7 +64,7 @@ const lineSeries = chart.series.push(
 
 ### Обычные данные
 
-Также можно передавать общие данные в серию через ее свойство `data` и метода `push`.
+Также можно передавать общие данные в серию через ее свойство `data` и метод `push`.
 
 ```tsx
 lineSeries.data.setAll([
@@ -83,7 +83,7 @@ lineSeries.data.setAll([
 
 ## Стилизация
 
-Стилизация здесь работает также как и в [полигонах](##LIBS.STAND/stand:amcharts-map-examples-components-polygons-stable/hash:стилизация)
+Стилизация здесь работает так же, как в [полигонах](##LIBS.STAND/stand:amcharts-map-examples-components-polygons-stable/hash:стилизация).
 
 ## Пример
 
