@@ -4,18 +4,14 @@ import image from './ConstaImage.png';
 
 const groups = [
   {
-    title: 'Компоненты',
-    id: 'components',
-  },
-  {
-    title: 'Адаптеры',
-    id: 'adapters',
+    title: 'amcharts',
+    id: 'amcharts',
   },
 ] as const;
 
 export const { createStand } = createConfig({
-  title: 'Consta amcharts-map-adapter',
-  id: 'amcharts-map-adapter',
+  title: 'Consta amcharts-map-examples',
+  id: 'amcharts-map-examples',
   groups,
   group: 'Библиотеки компонентов',
   image,
