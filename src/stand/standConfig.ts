@@ -4,17 +4,23 @@ import image from './ConstaImage.png';
 
 const groups = [
   {
-    title: 'amcharts',
-    id: 'amcharts',
+    title: 'О библиотеке amCharts',
+    id: 'docs',
+    initialOpen: true,
+  },
+  {
+    title: 'Примеры',
+    id: 'examples',
+    initialOpen: true,
   },
 ] as const;
 
 export const { createStand } = createConfig({
-  title: 'Consta amcharts-map-examples',
+  title: 'Стилизация карт armChart 5',
   id: 'amcharts-map-examples',
   groups,
   group: 'Библиотеки компонентов',
   image,
   description:
-    '[тут описание что это такое] Ультра топчик библиотеки с пацанскими кнопками и графиками, качай.',
+    'Здесь описано, как использовать карты из библиотеки armChart 5 для дизайн-системы Consta.',
 });

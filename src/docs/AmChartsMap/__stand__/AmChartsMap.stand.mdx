@@ -1,0 +1,216 @@
+import { MdxMenu } from '@consta/stand';
+import { AmChartsMapExample } from './examples/AmChartsMapExample/AmChartsMapExample';
+
+<MdxMenu>
+
+- [Установка пакетов](#установка-пакетов)
+- [Подключение библиотек](#подключение-библиотек)
+- [Создание полотна](#создание-полотна)
+  - [Отрисовка карты](#отрисовка-карты)
+  - [Проекция карты](#проекция-карты)
+- [Перемещение и масштабирование](#перемещение-и-масштабирование)
+  - [Перемещение](#перемещение)
+  - [Масштабирование](#масштабирование)
+- [Тема](#тема)
+- [Пример](#пример)
+
+</MdxMenu>
+
+## Установка пакетов
+
+Скачайте и установите пакеты для работы с библиотекой.
+
+- Исходный пакет, который отвечает за отрисовку элементов.
+
+`npm install @amcharts/amcharts5`
+или
+`yarn add @amcharts/amcharts5`
+
+- Пакет с данными для карт в формате GeoJSON для всех стран и континентов
+
+`npm install @amcharts/amcharts5-geodata`
+или
+`yarn add @amcharts/amcharts5-geodata`
+
+## Подключение библиотек
+
+Подключите библиотеки в коде проекта.
+
+```ts
+import * as am5 from '@amcharts/amcharts5';
+import * as am5map from '@amcharts/amcharts5/map';
+```
+
+[Подробнее о начале работы с amCharts](https://www.amcharts.com/docs/v5/getting-started/)
+
+## Создание полотна
+
+В хуке `useLayoutEffect` объявите исходный элемент, в котором будет отрисовываться график, а также само полотно карт:
+
+```tsx
+const root = am5.Root.new('map_id');
+const chart = root.container.children.push(am5map.MapChart.new(root, {}));
+```
+
+### Отрисовка карты
+
+Добавьте серию полигонов самой карты через объект графика таким образом:
+
+```tsx
+import am5geodata_russiaHigh from '@amcharts/amcharts5-geodata/russiaHigh';
+
+...
+
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: am5geodata_russiaHigh
+  })
+);
+```
+
+Есть ещё несколько серий полигонов, каждая из которых отвечает за отдельный аспект отрисовки:
+
+- `am5map.MapPolygonSeries` — отрисовка полигонов (форм) стран, континентов и регионов,
+- `am5map.MapLineSeries` — отрисовка линий на карте,
+- `am5map.MapPointSeries` — отрисовка маркеров (точек) на карте,
+- `am5map.GraticuleSeries` — отрисовка сетки карты.
+
+Все эти серии можно использовать в связке друг с другом, чтобы получить необходимый вам результат.
+
+### Проекция карты
+
+Есть много способов перевести сферическую поверхность планеты в плоскую карту. В картографии они называются проекциями.
+Чтобы создать необходимую вам проекцию, установите в настройках графика свойство `projection`. По умолчанию применяется проекция `am5map.geoMercator()`:
+
+```tsx
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoEqualEarth(),
+  }),
+);
+```
+
+[Посмотреть список всех встроенных проекций](https://www.amcharts.com/docs/v5/charts/map-chart/#Built_in_projections), принципы их подключения и проекции D3
+
+## Перемещение и масштабирование
+
+Указать изначальное положение карты можно с помощью этих свойств:
+
+- `rotationX` — долгота,
+- `rotationY` — широта,
+- `rotationZ` — градус отклонения при использовании сферической проекции (необязательно).
+
+```tsx
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    rotationX: -55,
+    rotationY: 10,
+  }),
+);
+```
+
+Установить исходное положения и масштаб можно в свойствах `homeGeoPoint` и `homeZoomLevel`:
+
+```tsx
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    homeZoomLevel: 3.5,
+    homeGeoPoint: { longitude: 10, latitude: 52 }
+  })
+);
+
+...
+
+polygonSeries.events.on("datavalidated", function() {
+  chart.goHome();
+});
+```
+
+### Перемещение
+
+Принцип перемещения по карте определяется свойствами `panX` и `panY`:
+
+- `'none'` — ничего не делать, при этом карта останется статичной и недоступной для перемещения в определенном направлении (X или Y).
+- `'rotateX' 'rotateY'` — вращение карты, содержимое поворачивается так же, как при вращении земного шара.
+- `'translateX' 'translateY'` — перемещение содержимого карты без изменения внешнего вида.
+
+```tsx
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    panX: 'translateX',
+    panY: 'rotateY',
+  }),
+);
+```
+
+### Масштабирование
+
+Шаг для масштабирования карты определяется свойством `zoomStep` и по умолчанию имеет значение `2`.
+Определить границы диапазона масштабирования можно с помощью свойств `minZoomLevel` и `maxZoomLevel`,
+по умолчанию они имеют значения `1` и `32` соответственно.
+
+#### Методы масштабирования карты
+
+- `zoomToPoint()` — центрирует и масштабирует карту до определенных координат X/Y в пикселях.
+- `zoomToGeoPoint()` — центрирует и масштабирует карту до определенных координат широты/долготы и уровня масштабирования.
+- `zoomIn()` — увеличивает карту, устанавливая значение `zoomStep`.
+- `zoomIn()` — уменьшает карту, устанавливая значение `zoomStep`.
+
+Также масштабирование и перемещение можно изменить через поведение колесика мыши `wheelX` и `wheelY`:
+
+- `'none'` — ничего не делать, при этом карта останется статической и недоступной для перемещения в определенном направлении (X или Y).
+- `'rotateX' 'rotateY'` — вращение карты, содержимое поворачивается так же, как при вращении земного шара.
+- `'translateX' 'translateY'` — перемещение содержимого карты без изменения внешнего вида
+- `'zoom'` — масштабирование карты вокруг центра, обозначенного положением курсора мыши.
+
+Также можно указать чувствительность колесика мыши через свойство `wheelSensitivity`.
+
+Чтобы отключить «щипковый зум» на мобильных устройствах, установите флаг `pinchZoom` в значение `false`.
+
+```tsx
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    panX: 'rotateX',
+    wheelY: 'zoom',
+    wheelSensitivity: 0.7,
+    pinchZoom: false,
+  }),
+);
+```
+
+Для добавления на карту кнопок масштабирования, необходимо создать и установить на график объект `ZoomControl`:
+
+```tsx
+chart.set('zoomControl', am5map.ZoomControl.new(root, {}));
+```
+
+## Тема
+
+Темы можно использовать для простого применения набора настроек к элементам полотна с помощью одной строки кода.
+
+```tsx
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+
+...
+
+root.setThemes([am5themes_Animated.new(root)]);
+```
+
+Вы можете создать свою тему, основываясь на классе `Theme`:
+
+```tsx
+const myTheme = am5.Theme.new(root);
+
+myTheme.rule('Label').setAll({
+  fill: am5.color(0xff0000),
+  fontSize: '1.5em',
+});
+
+root.setThemes([am5themes_Animated.new(root), myTheme]);
+```
+
+Можно переопределить тему по умолчанию, указав в элементах карт необходимые вам свойства.
+
+## Пример
+
+<AmChartsMapExample />

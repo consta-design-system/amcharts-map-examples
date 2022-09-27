@@ -1,7 +1,7 @@
 import { MdxMenu } from '@consta/stand';
 import { PolygonsExample } from './examples/PolygonsExample/PolygonsExample';
 
-Серии полигонов карты отвечают за отрисовку реальных областей карты (страны, регионы и т. д.).
+Серии полигонов `MapPolygonSeries` отвечают за отрисовку реальных областей карты — это могут быть страны, регионы и т. д.
 
 <MdxMenu>
 
@@ -17,7 +17,7 @@ import { PolygonsExample } from './examples/PolygonsExample/PolygonsExample';
 
 ## Добавление серии полигонов
 
-Чтобы создать серию полигонов карты, нам нужно созадать ообъект `MapPolygonSeries` и добавить его в эементы полотна:
+Чтобы создать серию полигонов, создайте `MapPolygonSeries` и добавьте его в элементы полотна:
 
 ```tsx
 const polygonSeries = chart.series.push(
@@ -29,14 +29,12 @@ const polygonSeries = chart.series.push(
 
 ### Данные
 
-Как и в случае с любми полигонами, для работы с полигональной серией нужны определенные данные.
-
-В случае серии карт это может быть либо формат `GeoJSON`, либо формат простых данных.
+Полигоны не могут сформироваться сами по себе, для их формирования нужны данные. Для карт можно использовать данные в формате `GeoJSON` или .
 
 #### GeoJSON
 
-Данные в формате `GeoJSON` задаются через свойство `geodata`.
-Серию полигонов можно взять из пакета `@amcharts/amcharts5-geodata`, либо взять из других источников или написать ее самому
+Данные в формате `GeoJSON` задаются в свойстве `geodata`.
+Серию полигонов можно добавить из пакета `@amcharts/amcharts5-geodata`, взять в готовом виде из других источников или написать самому.
 
 ```tsx
 const polygonSeries = chart.series.push(
@@ -48,9 +46,9 @@ const polygonSeries = chart.series.push(
 
 #### Обычные данные
 
-Также можно передавать общие данные в серию через ее свойство `data` и метода `push`.
+Можно передавать данные для формирования полигонов напрямую в `MapPolygonSeries` через свойство `data` и метод `push`.
 
-Элементы серии полигонов карты должны быть в геометрическом формате GeoJSON, например:
+Элементы полигонов можно описать в геометрическом формате GeoJSON, например так:
 
 ```tsx
 const polygonSeries = chart.series.push(am5map.MapPolygonSeries.new(root, {}));
@@ -80,7 +78,7 @@ polygonSeries.data.push({
 });
 ```
 
-Также в `@amcharts/amcharts5` есть предустановленные инструменты для удобства отрисовки полигонов:
+Также в `@amcharts/amcharts5` есть предустановленные инструменты для отрисовки полигонов:
 
 - `am5map.getGeoCircle(geoPoint, radius)` - возвращает географические данные, представляющие окружность с центром на определенной широте/долготе (первый параметр) и радиусом (в градусах).
 - `am5map.getGeoRectangle(north, east, south, west)` - возвращает географические данные, представляющие квадрат с границами, переданными через четыре параметра.
@@ -95,7 +93,7 @@ polygonSeries.data.push({
 });
 ```
 
-> Также есть воозможность совместного использования формата `GeoJSON` и обычных данных
+> `GeoJSON` можно использовать вместе с обычными данными
 
 ```tsx
 const polygonSeries = chart.series.push(
@@ -130,7 +128,7 @@ polygonSeries.mapPolygons.template.setAll({
 });
 ```
 
-Для того чтобы вынести слой наверх необходимо указать свойство `layer`:
+Чтобы вынести слой наверх, используйте свойство `layer`:
 
 ```tsx
 const polygonSeries = chart.series.push(
@@ -143,7 +141,7 @@ const polygonSeries = chart.series.push(
 
 ### Состояния
 
-Для того чтобы при наведении отображать всплывающую подсказку неопходимо в шаблоне определить формат вывода для свойства `tooltipText`:
+Чтобы при наведении **отображать всплывающую подсказку**, определите в шаблоне формат вывода для свойства `tooltipText`:
 
 ```tsx
 polygonSeries.mapPolygons.template.setAll({
@@ -151,7 +149,7 @@ polygonSeries.mapPolygons.template.setAll({
 });
 ```
 
-Для изменения стилей полигона небходимо создать стили для сосотояний `'hover', 'active', 'hidden', 'disabled'`:
+Чтобы **поменять стили полигона**, создайте стили для состояний `'hover', 'active', 'hidden', 'disabled'`:
 
 ```tsx
 polygonSeries.mapPolygons.template.states.create('hover', {
@@ -170,7 +168,7 @@ polygonSeries.mapPolygons.template.states.create('disable', {
 });
 ```
 
-Чтобы при наведении вынести слой на верхний уровень нужно указать поведение для сообытий `pointerover` и `pointerout` (это необходимо если при наведении у вас меняются цвета границ полигонов):
+Чтобы **вынести слой на верхний уровень при наведении**, опишите поведение для событий `pointerover` и `pointerout` (это необходимо, если при наведении у вас меняются цвета границ полигонов):
 
 ```tsx
 let previousPolygon: am5map.MapPolygon | undefined;
