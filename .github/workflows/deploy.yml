@@ -13,7 +13,7 @@ on:
 env:
   BUILD_SCRIPT: yarn stand:build
   BUILD_SCRIPT_OUTPUT: build
-  APP_NAME: amcharts-map-adapter
+  APP_NAME: amcharts-map-examples
 
 jobs:
   deploy:
