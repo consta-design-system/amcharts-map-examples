@@ -16,11 +16,11 @@ const groups = [
 ] as const;
 
 export const { createStand } = createConfig({
-  title: 'Стилизация карт armChart 5',
+  title: 'Стилизация карт amChart 5',
   id: 'amcharts-map-examples',
   groups,
   group: 'Библиотеки компонентов',
   image,
   description:
-    'Здесь описано, как использовать карты из библиотеки armChart 5 для дизайн-системы Consta.',
+    'Здесь описано, как использовать карты из библиотеки amChart 5 для дизайн-системы Consta.',
 });
