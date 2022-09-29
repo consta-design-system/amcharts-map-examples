@@ -1,11 +1,11 @@
 import { MdxMenu } from '@consta/stand';
 import { PolygonsExample } from './examples/PolygonsExample/PolygonsExample';
 
-Серии полигонов `MapPolygonSeries` отвечают за отрисовку реальных областей карты — это могут быть страны, регионы и т. д.
+Объект `MapPolygonSeries` отвечает за отрисовку областей на карте. Это могут быть географические объекты, например, страны и регионы, или любые другие объекты произвольной формы.
 
 <MdxMenu>
 
-- [Добавление серии полигонов](#добавление-серии-полигонов)
+- [Создание объекта](#создание-объекта)
   - [Данные](#данные)
     - [GeoJSON](#geojson)
     - [Обычные данные](#обычные-данные)
@@ -15,9 +15,9 @@ import { PolygonsExample } from './examples/PolygonsExample/PolygonsExample';
 
 </MdxMenu>
 
-## Добавление серии полигонов
+## Создание объекта
 
-Чтобы создать серию полигонов, создайте `MapPolygonSeries` и добавьте его в элементы полотна:
+Создайте объект `MapPolygonSeries` и добавьте его в элементы полотна:
 
 ```tsx
 const polygonSeries = chart.series.push(
@@ -29,12 +29,12 @@ const polygonSeries = chart.series.push(
 
 ### Данные
 
-Полигоны не могут сформироваться сами по себе, для их формирования нужны данные. Для карт можно использовать данные в формате `GeoJSON` или .
+Данные для формирования области на карте можно передать в формате `GeoJSON` или напрямую.
 
 #### GeoJSON
 
 Данные в формате `GeoJSON` задаются в свойстве `geodata`.
-Серию полигонов можно добавить из пакета `@amcharts/amcharts5-geodata`, взять в готовом виде из других источников или написать самому.
+Можно добавить набор географических объектов из пакета `@amcharts/amcharts5-geodata`, взять в готовом виде из других источников или написать самому.
 
 ```tsx
 const polygonSeries = chart.series.push(
@@ -46,9 +46,9 @@ const polygonSeries = chart.series.push(
 
 #### Обычные данные
 
-Можно передавать данные для формирования полигонов напрямую в `MapPolygonSeries` через свойство `data` и метод `push`.
+Можно передавать данные для формирования областей на карте напрямую в `MapPolygonSeries` через свойство `data` и метод `push`.
 
-Элементы полигонов можно описать в геометрическом формате GeoJSON, например так:
+Элементы областей можно описать в геометрическом формате `GeoJSON`, например так:
 
 ```tsx
 const polygonSeries = chart.series.push(am5map.MapPolygonSeries.new(root, {}));
@@ -78,7 +78,7 @@ polygonSeries.data.push({
 });
 ```
 
-Также в `@amcharts/amcharts5` есть предустановленные инструменты для отрисовки полигонов:
+Также в `@amcharts/amcharts5` есть предустановленные инструменты для отрисовки областей:
 
 - `am5map.getGeoCircle(geoPoint, radius)` - возвращает географические данные, представляющие окружность с центром на определенной широте/долготе (первый параметр) и радиусом (в градусах).
 - `am5map.getGeoRectangle(north, east, south, west)` - возвращает географические данные, представляющие квадрат с границами, переданными через четыре параметра.
@@ -118,7 +118,7 @@ polygonSeries.data.setAll([
 
 ## Стилизация
 
-Внешний вид полигона можно настроить через его шаблон, доступный через `mapPolygons.template`.
+Внешний вид области можно настроить через его шаблон, доступный в `mapPolygons.template`.
 
 ```tsx
 polygonSeries.mapPolygons.template.setAll({
@@ -128,7 +128,7 @@ polygonSeries.mapPolygons.template.setAll({
 });
 ```
 
-Чтобы вынести слой наверх, используйте свойство `layer`:
+Чтобы вынести слой с объектом наверх, используйте свойство `layer`:
 
 ```tsx
 const polygonSeries = chart.series.push(
@@ -149,7 +149,7 @@ polygonSeries.mapPolygons.template.setAll({
 });
 ```
 
-Чтобы **поменять стили полигона**, создайте стили для состояний `'hover', 'active', 'hidden', 'disabled'`:
+Чтобы **поменять стили области на карте**, создайте стили для состояний `'hover', 'active', 'hidden', 'disabled'`:
 
 ```tsx
 polygonSeries.mapPolygons.template.states.create('hover', {
@@ -168,7 +168,7 @@ polygonSeries.mapPolygons.template.states.create('disable', {
 });
 ```
 
-Чтобы **вынести слой на верхний уровень при наведении**, опишите поведение для событий `pointerover` и `pointerout` (это необходимо, если при наведении у вас меняются цвета границ полигонов):
+Чтобы **вынести слой на верхний уровень при наведении**, опишите поведение для событий `pointerover` и `pointerout` (это необходимо, если при наведении у вас меняются цвета границ областей):
 
 ```tsx
 let previousPolygon: am5map.MapPolygon | undefined;
