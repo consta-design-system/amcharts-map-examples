@@ -1,17 +1,31 @@
 import { MdxMenu } from '@consta/stand';
 import { GroupsExample } from './examples/GroupExample/GroupExample';
 
+Вы можете объединять элементы в группы и регулировать их поведение —  обычно это населённые пункты или похожие маркеры на карте.
+Это удобно, например, если маркеров на карте много и не хочется показывать сразу все.
+
+Группы позволяют показать меньше элементов при более мелком масштабе,
+сфокусировать внимание пользователя и описать поведение элементов в группе,
+которая вызвала интерес: показывать содержимое группы по клику или при увеличении
+масштаба.
+
+Например, на карте можно сначала показать один объект — Ленинградскую область,
+а уже по клику на него показывать множество городов и посёлков, которые
+в неё входят.
+
 <MdxMenu>
 
-- [Группы](#группы)
+- [Создание групп](#создание-групп)
 - [Пример](#пример)
 
 </MdxMenu>
 
-## Группы
+## Создание групп
 
-Принцип работы с группами схож с работой с точками на [карте](##LIBS.STAND/stand:amcharts-map-examples-components-points-stable).
-Для начала вам необходимо создать набор элементов групп и определиться с принципом их группировки (далее будет пример группировки по областям и городам):
+Принцип работы с группами похож на [работу с точками на карте](##LIBS.STAND/stand:amcharts-map-examples-components-points-stable).
+Для начала вам необходимо создать набор элементов групп и определиться с принципом их группировки.
+
+Пример группировки населённых пунктов по областям и городам:
 
 ```tsx
 {
@@ -318,7 +332,7 @@ const getGroupPolygon = (
   return found;
 };
 
-// Включение и выключение зума при прокрутке колесика мыши
+// Включение и выключение зума при прокрутке колёсика мыши
 const setWheelAction = (chart: am5map.MapChart, zoomable?: boolean) => {
   chart.events.on('wheel', (e) => {
     chart.setAll({
@@ -356,13 +370,13 @@ const setGroups = (params: {
 
     currentSeries = regionalSeries.RU.series;
 
-    // При уменьшении карты сворачиваем все группы и устонавливаем зум по умолчанию
+    // При уменьшении карты сворачиваем все группы и устанавливаем зум по умолчанию
     zoomOut?.events.on('click', () => {
       if (currentSeries) {
         currentSeries.hide();
       }
       chart.goHome();
-      // Включаем зум на колесико мыши
+      // Включаем зум при прокрутке колёсика мыши
       setWheelAction(chart, true);
       currentSeries = regionalSeries.RU.series;
       currentSeries?.show();
@@ -381,7 +395,7 @@ const setGroups = (params: {
 
       const { city, state, isGroup } = store;
 
-      // Если нет групп региона создаем их
+      // Если нет групп региона, создаеём их
       if (!regionalSeries[state]) {
         const statePolygon = getGroupPolygon(`RU-${state}`, mapPolygonSeries);
         if (statePolygon) {
@@ -413,7 +427,7 @@ const setGroups = (params: {
         regionalSeries[state].stores = (regionalSeries[state].stores ?? 0) + 1;
       }
 
-      // Если нет групп городов создаем их
+      // Если нет групп городов, создаём их
       if (!regionalSeries[city]) {
         regionalSeries[city] = {
           target: city,
@@ -433,7 +447,7 @@ const setGroups = (params: {
         regionalSeries[city].stores = (regionalSeries[city].stores ?? 0) + 1;
       }
 
-      // Добавляем точки которые не являются исходной точкой для раскрытия группы
+      // Добавляем точки, которые не являются исходной точкой для раскрытия группы
       if (!isGroup) {
         regionalSeries[city].markerData?.push({
           name: store.location,
@@ -525,7 +539,7 @@ const setGroups = (params: {
         if (currentSeries) {
           currentSeries.hide();
         }
-        // При нажатии на верхний уровень группы зум идет на регион
+        // При нажатии на верхний уровень группы, увеличивается регион
         if (data.type === 'state') {
           const statePolygon = getGroupPolygon(
             `RU-${data.state}`,
@@ -534,7 +548,7 @@ const setGroups = (params: {
           mapPolygonSeries.zoomToDataItem(
             statePolygon?.dataItem as am5.DataItem<am5map.IMapPolygonSeriesDataItem>,
           );
-          // При нажатии на нижние уровени группы зум идет на первый элемент группы
+          // При нажатии на нижние уровни группы, увеличивается первый элемент группы
         } else if (data.type === 'city') {
           if (data.geometry) {
             chart.zoomToGeoPoint(
@@ -547,7 +561,7 @@ const setGroups = (params: {
             );
           }
         }
-        // Отключаем зум на колесико мыши
+        // Отключаем зум при прокрутке колёсика мыши
         setWheelAction(chart, false);
         currentSeries = regionalSeries[data.target].series;
         currentSeries?.show();
@@ -596,7 +610,7 @@ export const GroupsExample = () => {
 
     chart.set('zoomControl', am5map.ZoomControl.new(root, {}));
 
-    //Необходимо дождаться когда карта отрисуется
+    //Необходимо дождаться, когда карта отрисуется
     setTimeout(() => {
       setGroups({
         data: GROUPS,

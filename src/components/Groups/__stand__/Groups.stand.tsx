@@ -1,8 +1,8 @@
 import { createStand } from '##/stand/standConfig';
 
 export default createStand({
-  title: 'Группы',
+  title: 'Группы точек',
   id: 'groups',
   group: 'examples',
-  order: 10,
+  order: 25,
 });
