@@ -6,6 +6,7 @@ import {
   ACTIVE_REGIONS,
   City,
   DISABLED_REGIONS,
+  GroupItem,
   MiningCenter,
   STRIPED_REGIONS,
 } from './mock.data';
@@ -315,63 +316,6 @@ export const setMiningPoint = (
   originSeries.data.setAll([data.origin]);
   miningsSeries.data.setAll(data.minings);
 
-  data.minings.forEach((city) => {
-    const destinationSeries = chart.series.push(
-      am5map.MapPointSeries.new(root, {}),
-    );
-
-    const cities = [data.origin, city].map((item) => {
-      const { geometry } = item;
-      return destinationSeries.pushDataItem({
-        latitude: geometry.coordinates[1],
-        longitude: geometry.coordinates[0],
-      });
-    });
-
-    const planeSeries = chart.series.push(
-      am5map.MapPointSeries.new(root, { layer: 5 }),
-    );
-    const plane = am5.Graphics.new(root, {
-      svgPath:
-        'm2,106h28l24,30h72l-44,-133h35l80,132h98c21,0 21,34 0,34l-98,0 -80,134h-35l43,-133h-71l-24,30h-28l15,-47',
-      scale: 0.06,
-      centerY: am5.p50,
-      centerX: am5.p50,
-      fill: am5.color(vars.color.primary['--color-bg-brand']),
-    });
-    planeSeries.bullets.push(function () {
-      const container = am5.Container.new(root, {});
-      container.children.push(plane);
-      return am5.Bullet.new(root, { sprite: container });
-    });
-
-    const lineDataItem = lineSeries.pushDataItem({
-      pointsToConnect: cities,
-    });
-
-    const planeDataItem = planeSeries.pushDataItem({
-      lineDataItem,
-      positionOnLine: 0,
-      autoRotate: true,
-    });
-
-    planeDataItem.animate({
-      key: 'positionOnLine',
-      to: 1,
-      duration: 10000,
-      loops: Infinity,
-      easing: am5.ease.yoyo(am5.ease.linear),
-    });
-
-    planeDataItem.on('positionOnLine', function (value) {
-      if ((value ?? 0) >= 0.99) {
-        plane.set('rotation', 180);
-      } else if ((value ?? 0) <= 0.01) {
-        plane.set('rotation', 0);
-      }
-    });
-  });
-
   const dataItem = originSeries.getDataItemById(data.origin.id);
   const lineSeriesData: unknown[] = [];
 
@@ -452,4 +396,263 @@ export const setPolygons = (
       },
     },
   ]);
+};
+
+type GroupPoint = {
+  target?: string;
+  type?: string;
+  name?: string;
+  count?: number;
+  stores?: number;
+  state?: string;
+  markerData: GroupPoint[];
+  series?: am5map.MapPointSeries;
+  geometry?: {
+    type: string;
+    coordinates: [number, number];
+  };
+};
+
+type GroupRegionSeries = Record<string, GroupPoint>;
+
+const getGroupPolygon = (
+  id: string,
+  mapPolygonSeries: am5map.MapPolygonSeries,
+): am5map.MapPolygon | undefined => {
+  let found;
+  mapPolygonSeries.mapPolygons.each(function (polygon) {
+    const item = polygon?.dataItem;
+    // @ts-ignore
+    if (item?.get('id') === id) {
+      found = polygon;
+    }
+  });
+  return found;
+};
+
+const setWheelAction = (chart: am5map.MapChart, zoomable?: boolean) => {
+  chart.events.on('wheel', (e) => {
+    chart.setAll({
+      wheelX: zoomable ? 'zoom' : 'none',
+      wheelY: zoomable ? 'zoom' : 'none',
+      wheelable: !!zoomable,
+    });
+  });
+};
+
+export const setGroups = (params: {
+  data: GroupItem[];
+  chart: am5map.MapChart;
+  root: am5.Root;
+  mapPolygonSeries: am5map.MapPolygonSeries;
+  vars: ThemeVars;
+}) => {
+  const { data, chart, root, mapPolygonSeries, vars } = params;
+
+  const regionalSeries: GroupRegionSeries = {};
+  let currentSeries: am5map.MapPointSeries | undefined;
+  const zoomOut = chart.get('zoomControl')?.minusButton;
+
+  const setupGroupStores = () => {
+    regionalSeries.RU = {
+      markerData: [],
+      series: createGroupSeries('stores'),
+    };
+
+    currentSeries = regionalSeries.RU.series;
+
+    zoomOut?.events.on('click', () => {
+      if (currentSeries) {
+        currentSeries.hide();
+      }
+      chart.goHome();
+      setWheelAction(chart, true);
+      currentSeries = regionalSeries.RU.series;
+      currentSeries?.show();
+    });
+
+    am5.array.each(data, (info) => {
+      const store = {
+        state: info.MAIL_ST_PROV_C,
+        long: info.LNGTD_I,
+        lat: info.LATTD_I,
+        location: info.co_loc_n,
+        city: info.mail_city_n,
+        isGroup: info.isGroup,
+        isCenter: info.isCenter,
+      };
+
+      const { city, state, isGroup } = store;
+
+      if (!regionalSeries[state]) {
+        const statePolygon = getGroupPolygon(`RU-${state}`, mapPolygonSeries);
+        if (statePolygon) {
+          const centroid = statePolygon.visualCentroid();
+
+          const context = statePolygon?.dataItem?.dataContext as {
+            name: string;
+          };
+
+          const data: GroupPoint = {
+            target: state,
+            type: 'state',
+            name: context.name,
+            stores: 0,
+            state,
+            markerData: [],
+            geometry: {
+              type: 'Point',
+              coordinates: [centroid.longitude, centroid.latitude],
+            },
+          };
+
+          regionalSeries[state] = data;
+          regionalSeries.RU.markerData?.push(regionalSeries[state]);
+        } else {
+          return;
+        }
+      } else if (!isGroup) {
+        regionalSeries[state].stores = (regionalSeries[state].stores ?? 0) + 1;
+      }
+      if (!regionalSeries[city]) {
+        regionalSeries[city] = {
+          target: city,
+          type: 'city',
+          name: city,
+          stores: 0,
+          state: store.state,
+          markerData: [],
+          geometry: {
+            type: 'Point',
+            coordinates: [store.long, store.lat],
+          },
+        };
+
+        regionalSeries[store.state].markerData?.push(regionalSeries[city]);
+      } else if (city && !isGroup) {
+        regionalSeries[city].stores = (regionalSeries[city].stores ?? 0) + 1;
+      }
+
+      if (!isGroup) {
+        regionalSeries[city].markerData?.push({
+          name: store.location,
+          stores: 1,
+          state: store.state,
+          markerData: [],
+          geometry: {
+            type: 'Point',
+            coordinates: [store.long, store.lat],
+          },
+        });
+      }
+    });
+
+    regionalSeries.RU.series?.data.setAll(
+      regionalSeries.RU.markerData as unknown[],
+    );
+  };
+
+  const createGroupSeries = (heatfield: string) => {
+    const pointSeries = chart.series.push(
+      am5map.MapPointSeries.new(root, {
+        valueField: heatfield,
+        calculateAggregates: true,
+      }),
+    );
+
+    pointSeries.bullets.push((root, series, dataItem) => {
+      const container = am5.Container.new(root, {});
+      const { stores } = dataItem.dataContext as { stores: number };
+      const radius = 12 + stores * 2;
+
+      const circle = container.children.push(
+        am5.Circle.new(root, {
+          radius,
+          fill: am5.color(vars.color.primary['--color-bg-default']),
+          stroke: am5.color(vars.color.primary['--color-bg-success']),
+          strokeWidth: 4,
+          cursorOverStyle: 'pointer',
+          tooltipText: '{name}:\n[bold]Количество мест: {stores}[/]',
+          layer: 0,
+        }),
+      );
+      container.children.push(
+        am5.Label.new(root, {
+          text: '{name}',
+          paddingLeft: radius + converPixels(vars.space['--space-m']),
+          populateText: true,
+          fontWeight: 'bold',
+          fill: am5.color(vars.color.primary['--color-typo-primary']),
+          oversizedBehavior: 'wrap',
+          fontFamily: vars.font['--font-primary'],
+          fontSize: converPixels(vars.size['--size-text-s']),
+          maxWidth: 200,
+          lineHeight: 1.2,
+          centerY: am5.p50,
+        }),
+      );
+      container.children.push(
+        am5.Label.new(root, {
+          text: stores > 1 ? `${stores}` : '',
+          marginLeft: converPixels(vars.space['--space-m']),
+          populateText: true,
+          fontWeight: '600',
+          fontFamily: vars.font['--font-primary'],
+          fontSize: converPixels(vars.size['--size-text-l']),
+          fill: am5.color(vars.color.primary['--color-typo-primary']),
+          lineHeight: 1.4,
+          centerX: am5.p50,
+          centerY: am5.p50,
+        }),
+      );
+
+      circle.events.on('click', function (ev) {
+        const data = ev.target.dataItem?.dataContext as GroupPoint;
+
+        if (!data?.target) {
+          return;
+        }
+
+        if (!regionalSeries[data.target].series) {
+          regionalSeries[data.target].series = createGroupSeries('count');
+          regionalSeries[data.target].series?.data.setAll(data.markerData);
+        }
+
+        if (currentSeries) {
+          currentSeries.hide();
+        }
+
+        if (data.type === 'state') {
+          const statePolygon = getGroupPolygon(
+            `RU-${data.state}`,
+            mapPolygonSeries,
+          );
+          mapPolygonSeries.zoomToDataItem(
+            statePolygon?.dataItem as am5.DataItem<am5map.IMapPolygonSeriesDataItem>,
+          );
+        } else if (data.type === 'city') {
+          if (data.geometry) {
+            chart.zoomToGeoPoint(
+              {
+                latitude: data.geometry.coordinates[1],
+                longitude: data.geometry.coordinates[0],
+              },
+              10,
+              true,
+            );
+          }
+        }
+        setWheelAction(chart, false);
+        currentSeries = regionalSeries[data.target].series;
+        currentSeries?.show();
+      });
+
+      return am5.Bullet.new(root, {
+        sprite: container,
+      });
+    });
+    return pointSeries;
+  };
+
+  setupGroupStores();
 };

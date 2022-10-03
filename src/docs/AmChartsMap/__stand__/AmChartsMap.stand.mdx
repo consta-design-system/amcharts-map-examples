@@ -57,13 +57,13 @@ const chart = root.container.children.push(am5map.MapChart.new(root, {}));
 Добавьте серию полигонов самой карты через объект графика таким образом:
 
 ```tsx
-import am5geodata_russiaHigh from '@amcharts/amcharts5-geodata/russiaHigh';
+import map from '##/utils/geoJson';
 
 ...
 
 const polygonSeries = chart.series.push(
   am5map.MapPolygonSeries.new(root, {
-    geoJSON: am5geodata_russiaHigh
+    geoJSON: map
   })
 );
 ```

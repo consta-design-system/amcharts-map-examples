@@ -4,19 +4,20 @@ import './AmChartsMapExample.css';
 import * as am5 from '@amcharts/amcharts5';
 import * as am5map from '@amcharts/amcharts5/map';
 import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
-import am5geodata_russiaHigh from '@amcharts/amcharts5-geodata/russiaHigh';
 import { useThemeVars } from '@consta/uikit/useThemeVars';
 import React, { useLayoutEffect } from 'react';
 
+import map from '##/utils/geoJson';
+
 import {
   setCitiesPoint,
+  setGroups,
   setMap,
-  setMiningPoint,
   setPolygons,
   setRegionsPatterns,
   setTooltipTheme,
 } from './helpers';
-import { CITIES, MINING_CENTER, ORIGIN_CENTER, POLYGONS } from './mock.data';
+import { CITIES, GROUPS, POLYGONS } from './mock.data';
 
 const MAP_ID = 'AmChartsMapExample';
 
@@ -30,8 +31,11 @@ export const AmChartsMapExample = () => {
 
     const chart = root.container.children.push(
       am5map.MapChart.new(root, {
-        panX: 'rotateX',
-        panY: 'rotateY',
+        panX: 'translateX',
+        panY: 'translateY',
+        wheelable: false,
+        wheelX: 'none',
+        wheelY: 'none',
         rotationX: -55,
         projection: am5map.geoMercator(),
         layout: root.horizontalLayout,
@@ -40,8 +44,9 @@ export const AmChartsMapExample = () => {
 
     const mapPolygonSeries = chart.series.push(
       am5map.MapPolygonSeries.new(root, {
-        geoJSON: am5geodata_russiaHigh,
+        geoJSON: map,
         valueField: 'value',
+        wheelable: false,
       }),
     );
 
@@ -51,20 +56,21 @@ export const AmChartsMapExample = () => {
     setRegionsPatterns(mapPolygonSeries, root, vars);
 
     setCitiesPoint(CITIES, chart, root, vars);
-    setMiningPoint(
-      {
-        origin: ORIGIN_CENTER,
-        minings: MINING_CENTER,
-      },
-      chart,
-      root,
-      vars,
-    );
     setPolygons(chart, root, POLYGONS, vars);
 
+    setTimeout(() => {
+      setGroups({
+        data: GROUPS,
+        chart,
+        root,
+        mapPolygonSeries,
+        vars,
+      });
+    }, 500);
     const tooltip = setTooltipTheme(root, vars);
 
     mapPolygonSeries.set('tooltip', tooltip);
+
     chart.appear(1000, 100);
 
     return () => {
