@@ -302,6 +302,7 @@ type GroupPoint = {
 
 type GroupRegionSeries = Record<string, GroupPoint>;
 
+// Получение полигона конкретного региона
 const getGroupPolygon = (
   id: string,
   mapPolygonSeries: am5map.MapPolygonSeries,
@@ -317,6 +318,7 @@ const getGroupPolygon = (
   return found;
 };
 
+// Включение и выключение зума при прокрутке колесика мыши
 const setWheelAction = (chart: am5map.MapChart, zoomable?: boolean) => {
   chart.events.on('wheel', (e) => {
     chart.setAll({
@@ -331,6 +333,7 @@ const converPixels = (pixels: string) => {
   return Number(pixels.replace(/px/g, ''));
 };
 
+// Функция для отрисовки групп
 const setGroups = (params: {
   data: GroupItem[];
   chart: am5map.MapChart;
@@ -344,6 +347,7 @@ const setGroups = (params: {
   let currentSeries: am5map.MapPointSeries | undefined;
   const zoomOut = chart.get('zoomControl')?.minusButton;
 
+  // Устанавливаем серии для групп
   const setupGroupStores = () => {
     regionalSeries.RU = {
       markerData: [],
@@ -352,11 +356,13 @@ const setGroups = (params: {
 
     currentSeries = regionalSeries.RU.series;
 
+    // При уменьшении карты сворачиваем все группы и устонавливаем зум по умолчанию
     zoomOut?.events.on('click', () => {
       if (currentSeries) {
         currentSeries.hide();
       }
       chart.goHome();
+      // Включаем зум на колесико мыши
       setWheelAction(chart, true);
       currentSeries = regionalSeries.RU.series;
       currentSeries?.show();
@@ -375,6 +381,7 @@ const setGroups = (params: {
 
       const { city, state, isGroup } = store;
 
+      // Если нет групп региона создаем их
       if (!regionalSeries[state]) {
         const statePolygon = getGroupPolygon(`RU-${state}`, mapPolygonSeries);
         if (statePolygon) {
@@ -405,6 +412,8 @@ const setGroups = (params: {
       } else if (!isGroup) {
         regionalSeries[state].stores = (regionalSeries[state].stores ?? 0) + 1;
       }
+
+      // Если нет групп городов создаем их
       if (!regionalSeries[city]) {
         regionalSeries[city] = {
           target: city,
@@ -424,6 +433,7 @@ const setGroups = (params: {
         regionalSeries[city].stores = (regionalSeries[city].stores ?? 0) + 1;
       }
 
+      // Добавляем точки которые не являются исходной точкой для раскрытия группы
       if (!isGroup) {
         regionalSeries[city].markerData?.push({
           name: store.location,
@@ -443,6 +453,7 @@ const setGroups = (params: {
     );
   };
 
+  // Создание серий по свойству
   const createGroupSeries = (heatfield: string) => {
     const pointSeries = chart.series.push(
       am5map.MapPointSeries.new(root, {
@@ -451,6 +462,7 @@ const setGroups = (params: {
       }),
     );
 
+    // Создание точек на карте
     pointSeries.bullets.push((root, series, dataItem) => {
       const container = am5.Container.new(root, {});
       const { stores } = dataItem.dataContext as { stores: number };
@@ -497,6 +509,7 @@ const setGroups = (params: {
         }),
       );
 
+      // Событие при клике на группу
       circle.events.on('click', function (ev) {
         const data = ev.target.dataItem?.dataContext as GroupPoint;
 
@@ -512,7 +525,7 @@ const setGroups = (params: {
         if (currentSeries) {
           currentSeries.hide();
         }
-
+        // При нажатии на верхний уровень группы зум идет на регион
         if (data.type === 'state') {
           const statePolygon = getGroupPolygon(
             `RU-${data.state}`,
@@ -521,6 +534,7 @@ const setGroups = (params: {
           mapPolygonSeries.zoomToDataItem(
             statePolygon?.dataItem as am5.DataItem<am5map.IMapPolygonSeriesDataItem>,
           );
+          // При нажатии на нижние уровени группы зум идет на первый элемент группы
         } else if (data.type === 'city') {
           if (data.geometry) {
             chart.zoomToGeoPoint(
@@ -533,6 +547,7 @@ const setGroups = (params: {
             );
           }
         }
+        // Отключаем зум на колесико мыши
         setWheelAction(chart, false);
         currentSeries = regionalSeries[data.target].series;
         currentSeries?.show();
@@ -581,6 +596,7 @@ export const GroupsExample = () => {
 
     chart.set('zoomControl', am5map.ZoomControl.new(root, {}));
 
+    //Необходимо дождаться когда карта отрисуется
     setTimeout(() => {
       setGroups({
         data: GROUPS,
