@@ -4,9 +4,10 @@ import './LineExample.css';
 import * as am5 from '@amcharts/amcharts5';
 import * as am5map from '@amcharts/amcharts5/map';
 import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
-import am5geodata_russiaHigh from '@amcharts/amcharts5-geodata/russiaHigh';
 import { useThemeVars } from '@consta/uikit/useThemeVars';
 import React, { useLayoutEffect } from 'react';
+
+import map from '##/utils/geoJson';
 
 type MiningCenter = {
   id: string;
@@ -79,9 +80,9 @@ export const LineExample = () => {
 
     const chart = root.container.children.push(
       am5map.MapChart.new(root, {
-        panX: 'rotateX',
-        panY: 'rotateY',
-        rotationX: -55,
+        panX: 'translateX',
+        panY: 'translateY',
+        rotationX: -90,
         projection: am5map.geoMercator(),
         layout: root.horizontalLayout,
       }),
@@ -89,7 +90,7 @@ export const LineExample = () => {
 
     const polygonSeries = chart.series.push(
       am5map.MapPolygonSeries.new(root, {
-        geoJSON: am5geodata_russiaHigh,
+        geoJSON: map,
         valueField: 'value',
       }),
     );
@@ -205,63 +206,6 @@ export const LineExample = () => {
 
     originSeries.data.setAll([ORIGIN_CENTER]);
     miningsSeries.data.setAll(MINING_CENTER);
-
-    MINING_CENTER.forEach((city) => {
-      const destinationSeries = chart.series.push(
-        am5map.MapPointSeries.new(root, {}),
-      );
-
-      const cities = [ORIGIN_CENTER, city].map((item) => {
-        const { geometry } = item;
-        return destinationSeries.pushDataItem({
-          latitude: geometry.coordinates[1],
-          longitude: geometry.coordinates[0],
-        });
-      });
-
-      const planeSeries = chart.series.push(
-        am5map.MapPointSeries.new(root, { layer: 5 }),
-      );
-      const plane = am5.Graphics.new(root, {
-        svgPath:
-          'm2,106h28l24,30h72l-44,-133h35l80,132h98c21,0 21,34 0,34l-98,0 -80,134h-35l43,-133h-71l-24,30h-28l15,-47',
-        scale: 0.06,
-        centerY: am5.p50,
-        centerX: am5.p50,
-        fill: am5.color(vars.color.primary['--color-bg-warning']),
-      });
-      planeSeries.bullets.push(function () {
-        const container = am5.Container.new(root, {});
-        container.children.push(plane);
-        return am5.Bullet.new(root, { sprite: container });
-      });
-
-      const lineDataItem = lineSeries.pushDataItem({
-        pointsToConnect: cities,
-      });
-
-      const planeDataItem = planeSeries.pushDataItem({
-        lineDataItem,
-        positionOnLine: 0,
-        autoRotate: true,
-      });
-
-      planeDataItem.animate({
-        key: 'positionOnLine',
-        to: 1,
-        duration: 10000,
-        loops: Infinity,
-        easing: am5.ease.yoyo(am5.ease.linear),
-      });
-
-      planeDataItem.on('positionOnLine', function (value) {
-        if ((value ?? 0) >= 0.99) {
-          plane.set('rotation', 180);
-        } else if ((value ?? 0) <= 0.01) {
-          plane.set('rotation', 0);
-        }
-      });
-    });
 
     const dataItem = originSeries.getDataItemById(ORIGIN_CENTER.id);
     const lineSeriesData: unknown[] = [];

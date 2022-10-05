@@ -4,9 +4,10 @@ import './PointsExample.css';
 import * as am5 from '@amcharts/amcharts5';
 import * as am5map from '@amcharts/amcharts5/map';
 import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
-import am5geodata_russiaHigh from '@amcharts/amcharts5-geodata/russiaHigh';
 import { useThemeVars } from '@consta/uikit/useThemeVars';
 import React, { useLayoutEffect } from 'react';
+
+import map from '##/utils/geoJson';
 
 type City = {
   id: string;
@@ -21,16 +22,16 @@ const converPixels = (pixels: string) => {
 
 const CITIES: City[] = [
   {
-    latitude: 59.9342802,
-    longitude: 30.3350986,
-    id: 'SPB',
-    name: 'Санкт-Петербург',
+    latitude: 62.0339,
+    longitude: 129.733,
+    id: 'YKT',
+    name: 'Якутск',
   },
   {
-    latitude: 55.755826,
-    longitude: 37.6173,
-    id: 'MSC',
-    name: 'Москва',
+    latitude: 56.4977,
+    longitude: 84.9744,
+    id: 'TMS',
+    name: 'Томск',
   },
 ];
 
@@ -44,8 +45,8 @@ export const PointsExample = () => {
 
     const chart = root.container.children.push(
       am5map.MapChart.new(root, {
-        panX: 'rotateX',
-        panY: 'rotateY',
+        panX: 'translateX',
+        panY: 'translateY',
         rotationX: -55,
         projection: am5map.geoMercator(),
         layout: root.horizontalLayout,
@@ -54,7 +55,7 @@ export const PointsExample = () => {
 
     const polygonSeries = chart.series.push(
       am5map.MapPolygonSeries.new(root, {
-        geoJSON: am5geodata_russiaHigh,
+        geoJSON: map,
         valueField: 'value',
       }),
     );

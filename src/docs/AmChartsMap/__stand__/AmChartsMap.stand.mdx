@@ -57,13 +57,13 @@ const chart = root.container.children.push(am5map.MapChart.new(root, {}));
 Добавьте географические области на карту через объект графика с помощью `MapPolygonSeries`:
 
 ```tsx
-import am5geodata_russiaHigh from '@amcharts/amcharts5-geodata/russiaHigh';
+import map from '##/utils/geoJson';
 
 ...
 
 const polygonSeries = chart.series.push(
   am5map.MapPolygonSeries.new(root, {
-    geoJSON: am5geodata_russiaHigh
+    geoJSON: map
   })
 );
 ```

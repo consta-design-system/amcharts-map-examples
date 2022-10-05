@@ -4,9 +4,10 @@ import './TooltipExample.css';
 import * as am5 from '@amcharts/amcharts5';
 import * as am5map from '@amcharts/amcharts5/map';
 import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
-import am5geodata_russiaHigh from '@amcharts/amcharts5-geodata/russiaHigh';
 import { useThemeVars } from '@consta/uikit/useThemeVars';
 import React, { useLayoutEffect } from 'react';
+
+import map from '##/utils/geoJson';
 
 const converPixels = (pixels: string) => {
   return Number(pixels.replace(/px/g, ''));
@@ -22,8 +23,8 @@ export const TooltipExample = () => {
 
     const chart = root.container.children.push(
       am5map.MapChart.new(root, {
-        panX: 'rotateX',
-        panY: 'rotateY',
+        panX: 'translateX',
+        panY: 'translateY',
         rotationX: -55,
         projection: am5map.geoMercator(),
         layout: root.horizontalLayout,
@@ -32,7 +33,7 @@ export const TooltipExample = () => {
 
     const polygonSeries = chart.series.push(
       am5map.MapPolygonSeries.new(root, {
-        geoJSON: am5geodata_russiaHigh,
+        geoJSON: map,
         valueField: 'value',
       }),
     );

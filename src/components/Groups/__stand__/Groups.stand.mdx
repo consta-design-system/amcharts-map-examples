@@ -1,0 +1,635 @@
+import { MdxMenu } from '@consta/stand';
+import { GroupsExample } from './examples/GroupExample/GroupExample';
+
+Вы можете объединять элементы в группы и регулировать их поведение —  обычно это населённые пункты или похожие маркеры на карте.
+Это удобно, например, если маркеров на карте много и не хочется показывать сразу все.
+
+Группы позволяют показать меньше элементов при более мелком масштабе,
+сфокусировать внимание пользователя и описать поведение элементов в группе,
+которая вызвала интерес: показывать содержимое группы по клику или при увеличении
+масштаба.
+
+Например, на карте можно сначала показать один объект — Ленинградскую область,
+а уже по клику на него показывать множество городов и посёлков, которые
+в неё входят.
+
+<MdxMenu>
+
+- [Создание групп](#создание-групп)
+- [Пример](#пример)
+
+</MdxMenu>
+
+## Создание групп
+
+Принцип работы с группами похож на [работу с точками на карте](##LIBS.STAND/stand:amcharts-map-examples-components-points-stable).
+Для начала вам необходимо создать набор элементов групп и определиться с принципом их группировки.
+
+Пример группировки населённых пунктов по областям и городам:
+
+```tsx
+{
+  co_loc_n: 'Томск 2-2',
+  MAIL_ST_PROV_C: 'TOM',
+  LNGTD_I: 78.63737678320288,
+  LATTD_I: 57.368432229382066,
+  mail_city_n: 'Томск 2',
+},
+{
+  co_loc_n: 'Иркутск 2',
+  MAIL_ST_PROV_C: 'IRK',
+  LNGTD_I: 98.21110071093689,
+  LATTD_I: 54.359396770898584,
+  mail_city_n: 'Иркутск 2',
+  isGroup: true,
+},
+{
+  co_loc_n: 'Иркутск 2-1',
+  MAIL_ST_PROV_C: 'IRK',
+  LNGTD_I: 98.21110071093689,
+  LATTD_I: 54.359396770898584,
+  mail_city_n: 'Иркутск 2',
+},
+...
+```
+
+## Пример
+
+<GroupsExample />
+
+```tsx
+import * as am5 from '@amcharts/amcharts5';
+import * as am5map from '@amcharts/amcharts5/map';
+import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
+import { ThemeVars, useThemeVars } from '@consta/uikit/useThemeVars';
+import React, { useLayoutEffect } from 'react';
+
+type GroupItem = {
+  co_loc_n: string;
+  MAIL_ST_PROV_C: string;
+  LNGTD_I: number;
+  LATTD_I: number;
+  mail_city_n: string;
+  isCenter?: boolean;
+  isGroup?: boolean;
+};
+
+const GROUPS: GroupItem[] = [
+  {
+    co_loc_n: 'ХМАО 1',
+    MAIL_ST_PROV_C: 'KHM',
+    LNGTD_I: 66.44187529687491,
+    LATTD_I: 63.41758375586903,
+    mail_city_n: 'ХМАО 1',
+    isGroup: true,
+  },
+  {
+    co_loc_n: 'ХМАО 1-1',
+    MAIL_ST_PROV_C: 'KHM',
+    LNGTD_I: 66.44187529687491,
+    LATTD_I: 63.41758375586903,
+    mail_city_n: 'ХМАО 1',
+  },
+  {
+    co_loc_n: 'ХМАО 1-2',
+    MAIL_ST_PROV_C: 'KHM',
+    LNGTD_I: 66.34574492578116,
+    LATTD_I: 63.232380035046184,
+    mail_city_n: 'ХМАО 1',
+  },
+  {
+    co_loc_n: 'ХМАО 2',
+    MAIL_ST_PROV_C: 'KHM',
+    LNGTD_I: 64.79927684374516,
+    LATTD_I: 62.00555794596251,
+    mail_city_n: 'ХМАО 2',
+    isGroup: true,
+  },
+  {
+    co_loc_n: 'ХМАО 2-1',
+    MAIL_ST_PROV_C: 'KHM',
+    LNGTD_I: 64.79927684374516,
+    LATTD_I: 62.00555794596251,
+    mail_city_n: 'ХМАО 2',
+  },
+  {
+    co_loc_n: 'ХМАО 2-2',
+    MAIL_ST_PROV_C: 'KHM',
+    LNGTD_I: 64.32686473437016,
+    LATTD_I: 61.916339814585704,
+    mail_city_n: 'ХМАО 2',
+  },
+  {
+    co_loc_n: 'ХМАО 2-3',
+    MAIL_ST_PROV_C: 'KHM',
+    LNGTD_I: 64.56032420702644,
+    LATTD_I: 61.7878735794065,
+    mail_city_n: 'ХМАО 2',
+  },
+  {
+    co_loc_n: 'ХМАО 3',
+    MAIL_ST_PROV_C: 'KHM',
+    LNGTD_I: 70.61241771288572,
+    LATTD_I: 60.41552451034487,
+    mail_city_n: 'ХМАО 3',
+    isGroup: true,
+  },
+  {
+    co_loc_n: 'ХМАО 3-1',
+    MAIL_ST_PROV_C: 'KHM',
+    LNGTD_I: 70.61241771288572,
+    LATTD_I: 60.41552451034487,
+    mail_city_n: 'ХМАО 3',
+  },
+  {
+    co_loc_n: 'Скважина 2',
+    MAIL_ST_PROV_C: 'YAN',
+    LNGTD_I: 75.69332908278163,
+    LATTD_I: 68.43918282446568,
+    mail_city_n: 'Скважина 2',
+    isGroup: true,
+  },
+  {
+    co_loc_n: 'Скважина 2-1',
+    MAIL_ST_PROV_C: 'YAN',
+    LNGTD_I: 75.69332908278163,
+    LATTD_I: 68.43918282446568,
+    mail_city_n: 'Скважина 2',
+  },
+  {
+    co_loc_n: 'Скважина 1',
+    MAIL_ST_PROV_C: 'YAN',
+    LNGTD_I: 76.5173036921566,
+    LATTD_I: 66.20208683443572,
+    mail_city_n: 'Скважина 1',
+    isGroup: true,
+  },
+  {
+    co_loc_n: 'Скважина 1-1',
+    MAIL_ST_PROV_C: 'YAN',
+    LNGTD_I: 76.5173036921566,
+    LATTD_I: 66.20208683443572,
+    mail_city_n: 'Скважина 1',
+  },
+  {
+    co_loc_n: 'Скважина 3',
+    MAIL_ST_PROV_C: 'YAN',
+    LNGTD_I: 69.04660056715633,
+    LATTD_I: 66.1220765426193,
+    mail_city_n: 'Скважина 3',
+    isGroup: true,
+  },
+  {
+    co_loc_n: 'Скважина 3-1',
+    MAIL_ST_PROV_C: 'YAN',
+    LNGTD_I: 69.04660056715633,
+    LATTD_I: 66.1220765426193,
+    mail_city_n: 'Скважина 3',
+  },
+  {
+    co_loc_n: 'Скважина 3-2',
+    MAIL_ST_PROV_C: 'YAN',
+    LNGTD_I: 70.99118064528167,
+    LATTD_I: 65.96577397780811,
+    mail_city_n: 'Скважина 3',
+  },
+  {
+    co_loc_n: 'Тюмень',
+    MAIL_ST_PROV_C: 'TYU',
+    LNGTD_I: 65.534328,
+    LATTD_I: 57.153033,
+    isGroup: true,
+    mail_city_n: 'Тюмень',
+  },
+  {
+    co_loc_n: 'ЦУБ Тюмень',
+    MAIL_ST_PROV_C: 'TYU',
+    LNGTD_I: 65.534328,
+    LATTD_I: 57.153033,
+    isCenter: true,
+    mail_city_n: 'Тюмень',
+  },
+  {
+    co_loc_n: 'Томск 1',
+    MAIL_ST_PROV_C: 'TOM',
+    LNGTD_I: 77.44536018164045,
+    LATTD_I: 58.916393162239494,
+    mail_city_n: 'Томск 1',
+    isGroup: true,
+  },
+  {
+    co_loc_n: 'Томск 1-1',
+    MAIL_ST_PROV_C: 'TOM',
+    LNGTD_I: 77.44536018164045,
+    LATTD_I: 58.916393162239494,
+    mail_city_n: 'Томск 1',
+  },
+  {
+    co_loc_n: 'Томск 1-2',
+    MAIL_ST_PROV_C: 'TOM',
+    LNGTD_I: 77.82988166601544,
+    LATTD_I: 58.74550146928487,
+    mail_city_n: 'Томск 1',
+  },
+  {
+    co_loc_n: 'Томск 2',
+    MAIL_ST_PROV_C: 'TOM',
+    LNGTD_I: 78.5110340097654,
+    LATTD_I: 57.501744320679336,
+    mail_city_n: 'Томск 2',
+    isGroup: true,
+  },
+  {
+    co_loc_n: 'Томск 2-1',
+    MAIL_ST_PROV_C: 'TOM',
+    LNGTD_I: 78.5110340097654,
+    LATTD_I: 57.501744320679336,
+    mail_city_n: 'Томск 2',
+  },
+  {
+    co_loc_n: 'Томск 2-3',
+    MAIL_ST_PROV_C: 'TOM',
+    LNGTD_I: 78.96696662695291,
+    LATTD_I: 57.432186610532526,
+    mail_city_n: 'Томск 2',
+  },
+  {
+    co_loc_n: 'Томск 2-2',
+    MAIL_ST_PROV_C: 'TOM',
+    LNGTD_I: 78.63737678320288,
+    LATTD_I: 57.368432229382066,
+    mail_city_n: 'Томск 2',
+  },
+  {
+    co_loc_n: 'Иркутск 2',
+    MAIL_ST_PROV_C: 'IRK',
+    LNGTD_I: 98.21110071093689,
+    LATTD_I: 54.359396770898584,
+    mail_city_n: 'Иркутск 2',
+    isGroup: true,
+  },
+  {
+    co_loc_n: 'Иркутск 2-1',
+    MAIL_ST_PROV_C: 'IRK',
+    LNGTD_I: 98.21110071093689,
+    LATTD_I: 54.359396770898584,
+    mail_city_n: 'Иркутск 2',
+  },
+  {
+    co_loc_n: 'Иркутск 1',
+    MAIL_ST_PROV_C: 'IRK',
+    LNGTD_I: 107.45609582812448,
+    LATTD_I: 55.56509814056677,
+    mail_city_n: 'Иркутск 1',
+    isGroup: true,
+  },
+  {
+    co_loc_n: 'Иркутск 1-1',
+    MAIL_ST_PROV_C: 'IRK',
+    LNGTD_I: 107.45609582812448,
+    LATTD_I: 55.56509814056677,
+    mail_city_n: 'Иркутск 1',
+  },
+  {
+    co_loc_n: 'Иркутск 1-2',
+    MAIL_ST_PROV_C: 'IRK',
+    LNGTD_I: 107.86533655078071,
+    LATTD_I: 55.431013801430794,
+    mail_city_n: 'Иркутск 1',
+  },
+];
+
+type GroupPoint = {
+  target?: string;
+  type?: string;
+  name?: string;
+  count?: number;
+  stores?: number;
+  state?: string;
+  markerData: GroupPoint[];
+  series?: am5map.MapPointSeries;
+  geometry?: {
+    type: string;
+    coordinates: [number, number];
+  };
+};
+
+type GroupRegionSeries = Record<string, GroupPoint>;
+
+// Получение полигона конкретного региона
+const getGroupPolygon = (
+  id: string,
+  mapPolygonSeries: am5map.MapPolygonSeries,
+): am5map.MapPolygon | undefined => {
+  let found;
+  mapPolygonSeries.mapPolygons.each(function (polygon) {
+    const item = polygon?.dataItem;
+    // @ts-ignore
+    if (item?.get('id') === id) {
+      found = polygon;
+    }
+  });
+  return found;
+};
+
+// Включение и выключение зума при прокрутке колёсика мыши
+const setWheelAction = (chart: am5map.MapChart, zoomable?: boolean) => {
+  chart.events.on('wheel', (e) => {
+    chart.setAll({
+      wheelX: zoomable ? 'zoom' : 'none',
+      wheelY: zoomable ? 'zoom' : 'none',
+      wheelable: !!zoomable,
+    });
+  });
+};
+
+const converPixels = (pixels: string) => {
+  return Number(pixels.replace(/px/g, ''));
+};
+
+// Функция для отрисовки групп
+const setGroups = (params: {
+  data: GroupItem[];
+  chart: am5map.MapChart;
+  root: am5.Root;
+  mapPolygonSeries: am5map.MapPolygonSeries;
+  vars: ThemeVars;
+}) => {
+  const { data, chart, root, mapPolygonSeries, vars } = params;
+
+  const regionalSeries: GroupRegionSeries = {};
+  let currentSeries: am5map.MapPointSeries | undefined;
+  const zoomOut = chart.get('zoomControl')?.minusButton;
+
+  // Устанавливаем серии для групп
+  const setupGroupStores = () => {
+    regionalSeries.RU = {
+      markerData: [],
+      series: createGroupSeries('stores'),
+    };
+
+    currentSeries = regionalSeries.RU.series;
+
+    // При уменьшении карты сворачиваем все группы и устанавливаем зум по умолчанию
+    zoomOut?.events.on('click', () => {
+      if (currentSeries) {
+        currentSeries.hide();
+      }
+      chart.goHome();
+      // Включаем зум при прокрутке колёсика мыши
+      setWheelAction(chart, true);
+      currentSeries = regionalSeries.RU.series;
+      currentSeries?.show();
+    });
+
+    am5.array.each(data, (info) => {
+      const store = {
+        state: info.MAIL_ST_PROV_C,
+        long: info.LNGTD_I,
+        lat: info.LATTD_I,
+        location: info.co_loc_n,
+        city: info.mail_city_n,
+        isGroup: info.isGroup,
+        isCenter: info.isCenter,
+      };
+
+      const { city, state, isGroup } = store;
+
+      // Если нет групп региона, создаеём их
+      if (!regionalSeries[state]) {
+        const statePolygon = getGroupPolygon(`RU-${state}`, mapPolygonSeries);
+        if (statePolygon) {
+          const centroid = statePolygon.visualCentroid();
+
+          const context = statePolygon?.dataItem?.dataContext as {
+            name: string;
+          };
+
+          const data: GroupPoint = {
+            target: state,
+            type: 'state',
+            name: context.name,
+            stores: 0,
+            state,
+            markerData: [],
+            geometry: {
+              type: 'Point',
+              coordinates: [centroid.longitude, centroid.latitude],
+            },
+          };
+
+          regionalSeries[state] = data;
+          regionalSeries.RU.markerData?.push(regionalSeries[state]);
+        } else {
+          return;
+        }
+      } else if (!isGroup) {
+        regionalSeries[state].stores = (regionalSeries[state].stores ?? 0) + 1;
+      }
+
+      // Если нет групп городов, создаём их
+      if (!regionalSeries[city]) {
+        regionalSeries[city] = {
+          target: city,
+          type: 'city',
+          name: city,
+          stores: 0,
+          state: store.state,
+          markerData: [],
+          geometry: {
+            type: 'Point',
+            coordinates: [store.long, store.lat],
+          },
+        };
+
+        regionalSeries[store.state].markerData?.push(regionalSeries[city]);
+      } else if (city && !isGroup) {
+        regionalSeries[city].stores = (regionalSeries[city].stores ?? 0) + 1;
+      }
+
+      // Добавляем точки, которые не являются исходной точкой для раскрытия группы
+      if (!isGroup) {
+        regionalSeries[city].markerData?.push({
+          name: store.location,
+          stores: 1,
+          state: store.state,
+          markerData: [],
+          geometry: {
+            type: 'Point',
+            coordinates: [store.long, store.lat],
+          },
+        });
+      }
+    });
+
+    regionalSeries.RU.series?.data.setAll(
+      regionalSeries.RU.markerData as unknown[],
+    );
+  };
+
+  // Создание серий по свойству
+  const createGroupSeries = (heatfield: string) => {
+    const pointSeries = chart.series.push(
+      am5map.MapPointSeries.new(root, {
+        valueField: heatfield,
+        calculateAggregates: true,
+      }),
+    );
+
+    // Создание точек на карте
+    pointSeries.bullets.push((root, series, dataItem) => {
+      const container = am5.Container.new(root, {});
+      const { stores } = dataItem.dataContext as { stores: number };
+      const radius = 12 + stores * 2;
+
+      const circle = container.children.push(
+        am5.Circle.new(root, {
+          radius,
+          fill: am5.color(vars.color.primary['--color-bg-default']),
+          stroke: am5.color(vars.color.primary['--color-bg-success']),
+          strokeWidth: 4,
+          cursorOverStyle: 'pointer',
+          tooltipText: '{name}:\n[bold]Количество мест: {stores}[/]',
+          layer: 0,
+        }),
+      );
+      container.children.push(
+        am5.Label.new(root, {
+          text: '{name}',
+          paddingLeft: radius + converPixels(vars.space['--space-m']),
+          populateText: true,
+          fontWeight: 'bold',
+          fill: am5.color(vars.color.primary['--color-typo-primary']),
+          oversizedBehavior: 'wrap',
+          fontFamily: vars.font['--font-primary'],
+          fontSize: converPixels(vars.size['--size-text-s']),
+          maxWidth: 200,
+          lineHeight: 1.2,
+          centerY: am5.p50,
+        }),
+      );
+      container.children.push(
+        am5.Label.new(root, {
+          text: stores > 1 ? `${stores}` : '',
+          marginLeft: converPixels(vars.space['--space-m']),
+          populateText: true,
+          fontWeight: '600',
+          fontFamily: vars.font['--font-primary'],
+          fontSize: converPixels(vars.size['--size-text-l']),
+          fill: am5.color(vars.color.primary['--color-typo-primary']),
+          lineHeight: 1.4,
+          centerX: am5.p50,
+          centerY: am5.p50,
+        }),
+      );
+
+      // Событие при клике на группу
+      circle.events.on('click', function (ev) {
+        const data = ev.target.dataItem?.dataContext as GroupPoint;
+
+        if (!data?.target) {
+          return;
+        }
+
+        if (!regionalSeries[data.target].series) {
+          regionalSeries[data.target].series = createGroupSeries('count');
+          regionalSeries[data.target].series?.data.setAll(data.markerData);
+        }
+
+        if (currentSeries) {
+          currentSeries.hide();
+        }
+        // При нажатии на верхний уровень группы, увеличивается регион
+        if (data.type === 'state') {
+          const statePolygon = getGroupPolygon(
+            `RU-${data.state}`,
+            mapPolygonSeries,
+          );
+          mapPolygonSeries.zoomToDataItem(
+            statePolygon?.dataItem as am5.DataItem<am5map.IMapPolygonSeriesDataItem>,
+          );
+          // При нажатии на нижние уровни группы, увеличивается первый элемент группы
+        } else if (data.type === 'city') {
+          if (data.geometry) {
+            chart.zoomToGeoPoint(
+              {
+                latitude: data.geometry.coordinates[1],
+                longitude: data.geometry.coordinates[0],
+              },
+              10,
+              true,
+            );
+          }
+        }
+        // Отключаем зум при прокрутке колёсика мыши
+        setWheelAction(chart, false);
+        currentSeries = regionalSeries[data.target].series;
+        currentSeries?.show();
+      });
+
+      return am5.Bullet.new(root, {
+        sprite: container,
+      });
+    });
+    return pointSeries;
+  };
+
+  setupGroupStores();
+};
+
+const MAP_ID = 'GroupsExample';
+
+export const GroupsExample = () => {
+  const vars = useThemeVars();
+
+  useLayoutEffect(() => {
+    const root = am5.Root.new(MAP_ID);
+
+    root.setThemes([am5themes_Animated.new(root)]);
+
+    const chart = root.container.children.push(
+      am5map.MapChart.new(root, {
+        panX: 'translateX',
+        panY: 'translateY',
+        wheelable: false,
+        wheelX: 'none',
+        wheelY: 'none',
+        rotationX: -55,
+        projection: am5map.geoMercator(),
+        layout: root.horizontalLayout,
+      }),
+    );
+
+    const mapPolygonSeries = chart.series.push(
+      am5map.MapPolygonSeries.new(root, {
+        geoJSON: map,
+        valueField: 'value',
+        wheelable: false,
+      }),
+    );
+
+    chart.set('zoomControl', am5map.ZoomControl.new(root, {}));
+
+    //Необходимо дождаться, когда карта отрисуется
+    setTimeout(() => {
+      setGroups({
+        data: GROUPS,
+        chart,
+        root,
+        mapPolygonSeries,
+        vars,
+      });
+    }, 500);
+
+    chart.appear(1000, 100);
+
+    return () => {
+      chart.dispose();
+      root.dispose();
+      mapPolygonSeries.dispose();
+    };
+  }, [vars]);
+
+  return <div id={MAP_ID} />;
+};
+```
