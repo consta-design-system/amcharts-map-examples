@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.1.0 (05/10/2022)
+Подготовили для вас документацию о том, как создавать географические карты на базе библиотеки [amCharts 5](https://www.amcharts.com/javascript-maps/) и использовать их в рамках дизайн-системы Consta. В ней показали на примерах, как применить тематизацию или цвета Consta к разным картам, созданным с помощью компонента Map.
+
+В дизайне карты тоже есть, расскажем в ближайшем обновлении библиотек в Figma.
+
+---
+
+- [fix(amcharts): fix map view and add groups to examples (#6)](https://github.com/consta-design-system/amcharts-map-examples/commit/458360d820fa34507dff140e04e8358f1447a0d3) - [@N1MBER](https://github.com/N1MBER)
+- [docs: edit docs about pattern and polygons (#5)](https://github.com/consta-design-system/amcharts-map-examples/commit/d43c202f11625dbca8a9d620c3a4ca7e928674ba) - [@arhayka](https://github.com/arhayka)
+- [docs: fix misprint (#4)](https://github.com/consta-design-system/amcharts-map-examples/commit/0078cc6af780df47879b5d6bb2cf502f43fbef2b) - [@arhayka](https://github.com/arhayka)
+
+--------------------
+
 ## v0.0.1 (27/09/2022)
 - [docs: edit docs](https://github.com/consta-design-system/amcharts-map-examples/commit/061a12bf5cb42125eccce3aafb88105aa9051a4f) - [@gizeasy](https://github.com/gizeasy)
 - [chore(deps): update stand](https://github.com/consta-design-system/amcharts-map-examples/commit/b17eb0d4536ab00c8d17dae251d6357d2577b421) - [@gizeasy](https://github.com/gizeasy)
