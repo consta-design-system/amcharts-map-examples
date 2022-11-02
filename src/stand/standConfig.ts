@@ -19,8 +19,10 @@ export const { createStand } = createConfig({
   title: 'Стилизация карт amCharts',
   id: 'amcharts-map-examples',
   groups,
-  group: 'Библиотеки компонентов',
+  group: 'Отдельные компоненты',
   image,
   description:
     'Примеры использования карт из библиотеки amCharts для дизайн-системы Consta.',
+  repositoryUrl:
+    'https://github.com/consta-design-system/amcharts-map-examples',
 });
