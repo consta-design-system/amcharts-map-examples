@@ -7,3 +7,16 @@
 - [Примеры карт для Consta](https://amcharts-map-examples.consta.design/)
 - [Подробнее о картах amCharts](https://www.amcharts.com/javascript-maps/)
 - [Документация компонента Map](https://www.amcharts.com/docs/v5/charts/map-chart/)
+
+### Основные команды
+
+```sh
+# Запуск локального сервера для разработки
+$ yarn start
+
+# Сборка стенда
+$ yarn stand:build
+
+# Запуск тестов
+$ yarn test
+```
