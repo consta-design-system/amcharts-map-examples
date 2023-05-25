@@ -25,4 +25,5 @@ export const { createStand } = createConfig({
     'Примеры использования карт из библиотеки amCharts для дизайн-системы Consta.',
   repositoryUrl:
     'https://github.com/consta-design-system/amcharts-map-examples',
+  figmaUrl: 'https://www.figma.com/community/file/1159880142435704493',
 });
