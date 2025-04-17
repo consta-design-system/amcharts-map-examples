@@ -1,4 +1,4 @@
-import { MdxMenu } from '@consta/stand';
+import { MdxMenu, MdxInformer } from '@consta/stand';
 import { PolygonsExample } from './examples/PolygonsExample/PolygonsExample';
 
 Объект `MapPolygonSeries` отвечает за отрисовку областей на карте. Это могут быть географические объекты, например, страны и регионы, или любые другие объекты произвольной формы.
@@ -93,7 +93,11 @@ polygonSeries.data.push({
 });
 ```
 
-> `GeoJSON` можно использовать вместе с обычными данными
+<MdxInformer status="normal">
+
+`GeoJSON` можно использовать вместе с обычными данными.
+
+</MdxInformer>
 
 ```tsx
 const polygonSeries = chart.series.push(
